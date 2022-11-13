@@ -27,7 +27,7 @@ import tempfile
 
 class SSIRequestHandler(SimpleHTTPRequestHandler):
   """Adds minimal support for <!-- #include --> directives.
-  
+
   The key bit is translate_path, which intercepts requests and serves them
   using a temporary file which inlines the #includes.
   """
@@ -46,6 +46,10 @@ class SSIRequestHandler(SimpleHTTPRequestHandler):
 
   def translate_path(self, path):
     fs_path = SimpleHTTPRequestHandler.translate_path(self, path)
+    if fs_path[-3:].lower() == ".py" or fs_path[-4:].lower() == ".pyc":
+      error = "File not found: %s" % path
+      return error
+
     if self.path.endswith('/'):
       for index in "index.html", "index.htm", "index.shtml":
         index = os.path.join(fs_path, index)
